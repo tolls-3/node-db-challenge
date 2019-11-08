@@ -6,8 +6,17 @@ const router = express.Router();
 router.get("/", (req, res) => {
   Projects.get()
     .then(projects => {
-      console.log(projects)
-      res.status(200).json(projects);
+      const newProjects = [];
+      projects.map(project => {
+        if (project.completed === 0) {
+          project = { ...project, completed: false };
+          newProjects.push(project);
+        } else {
+          project = { ...project, completed: true };
+          newProjects.push(project);
+        }
+      });
+      res.status(200).json(newProjects);
     })
     .catch(err => {
       res
@@ -20,7 +29,9 @@ router.post("/", (req, res) => {
   const { project_name, project_description } = req.body;
 
   if (!project_name || !project_description) {
-    return res.status(404).json({ message: "Missing project name or description" });
+    return res
+      .status(404)
+      .json({ message: "Missing project name or description" });
   } else {
     Projects.add(req.body)
       .then(project => {
